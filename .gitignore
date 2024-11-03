@@ -6,3 +6,5 @@ token.json
 
 # Ignore reminders JSON file
 reminders.json
+
+.env

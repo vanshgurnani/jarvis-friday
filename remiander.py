@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import speech_recognition as sr
 import pyttsx3
 import time
@@ -12,6 +13,12 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 
+load_dotenv()
+
+WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
+CUSTOM_SEARCH_API_KEY = os.getenv('CUSTOM_SEARCH_API_KEY')
+SEARCH_ENGINE_ID = os.getenv('SEARCH_ENGINE_ID')
+
 # Initialize recognizer and TTS engine
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
@@ -22,6 +29,21 @@ REMINDER_FILE = "reminders.json"
 # Google Calendar API scope
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
+voice_gender = 'male'  # Default voice gender
+available_voices = engine.getProperty('voices')
+
+def set_voice(gender):
+    """Set the TTS engine voice based on gender."""
+    global voice_gender
+    voice_gender = gender.lower()
+    for voice in available_voices:
+        if (voice_gender == 'male' and 'male' in voice.name.lower()) or \
+           (voice_gender == 'female' and 'female' in voice.name.lower()):
+            engine.setProperty('voice', voice.id)
+            speak(f"Voice set to {voice.name}.")
+            return
+    speak("Sorry, the selected voice is not available. Default voice will be used.")
+    
 # Authenticate and build the Google Calendar service
 def authenticate_google_calendar():
     """Authenticate the user and return the Google Calendar service."""
@@ -154,8 +176,6 @@ def play_music(song_name):
     webbrowser.open(search_url)
     speak(f"Playing {song_name} on YouTube.")
 
-WEATHER_API_KEY = 'ea0203192ac14efd6b10cc9ebe34eaf0'
-
 def get_weather(city_name):
     """Fetch weather data for a given city using OpenWeatherMap API."""
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={WEATHER_API_KEY}&units=metric"
@@ -172,9 +192,6 @@ def get_weather(city_name):
     except requests.exceptions.RequestException as e:
         print("Error fetching weather data:", e)
         speak("Sorry, I couldn't fetch the weather data right now.")
-
-CUSTOM_SEARCH_API_KEY = 'AIzaSyApymSTh8sx3WvJLiEiaoY4U0vfhREc-P0'
-SEARCH_ENGINE_ID = 'd73661cef225c4598'
 
 def google_custom_search(search_query):
     url = f"https://www.googleapis.com/customsearch/v1?q={search_query}&key={CUSTOM_SEARCH_API_KEY}&cx={SEARCH_ENGINE_ID}"
@@ -204,6 +221,13 @@ def process_command(command):
         reminder_text = match.group(1)
         reminder_time = match.group(2)
         add_reminder(reminder_text, reminder_time)
+    elif "set voice" in command:
+        if "male" in command:
+            set_voice('male')
+        elif "female" in command:
+            set_voice('female')
+        else:
+            speak("Please specify if you want a male or female voice.")
     elif "weather" in command:
         # Extract city name from command if possible; otherwise, use a default city
         city_match = re.search(r"weather in (\w+)", command)
