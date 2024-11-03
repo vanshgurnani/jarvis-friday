@@ -1,0 +1,8 @@
+# Ignore Google credentials JSON file
+credentials.json
+
+# Ignore token file
+token.json
+
+# Ignore reminders JSON file
+reminders.json
