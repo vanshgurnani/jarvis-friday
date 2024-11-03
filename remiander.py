@@ -18,6 +18,7 @@ load_dotenv()
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
 CUSTOM_SEARCH_API_KEY = os.getenv('CUSTOM_SEARCH_API_KEY')
 SEARCH_ENGINE_ID = os.getenv('SEARCH_ENGINE_ID')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY') 
 
 # Initialize recognizer and TTS engine
 recognizer = sr.Recognizer()
@@ -212,6 +213,30 @@ def google_custom_search(search_query):
         print(no_results_message)
         speak(no_results_message)  # Speak the no results message
 
+def fetch_news():
+    """Fetch top headlines from News API and speak them."""
+    url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={NEWS_API_KEY}"
+    response = requests.get(url)
+    
+    # Print the full response for debugging
+    print(json.dumps(response.json(), indent=4))
+    
+    if response.status_code == 200:
+        news_data = response.json()
+        if news_data['articles']:
+            headlines = [article['title'] for article in news_data['articles']]
+            for headline in headlines:
+                print(f"Headline: {headline}")
+                speak(headline)
+        else:
+            speak("No news articles available at this time.")
+    else:
+        speak("Failed to fetch news. Please try again later.")
+
+def read_news():
+    """Read the latest news headlines."""
+    speak("Fetching the latest news for you.")
+    fetch_news()
                 
 def process_command(command):
     """Process the voice command and trigger appropriate actions."""
@@ -242,6 +267,8 @@ def process_command(command):
     elif "play" in command and "music" in command:
         song_name = command.replace("play music", "").strip()
         play_music(song_name)
+    elif "news" in command:
+        read_news()
     else:
         speak("Please specify the reminder and time, or ask me to play music on YouTube.")
 
