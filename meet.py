@@ -5,9 +5,9 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 # Constants
-PROJECT_ID = "industrial-silo-436510-k4"
-TOPIC_NAME = "projects/industrial-silo-436510-k4/topics/meet"
-SUBSCRIPTION_NAME = "projects/industrial-silo-436510-k4/subscriptions/meet-sub"
+PROJECT_ID = ""
+TOPIC_NAME = ""
+SUBSCRIPTION_NAME = ""
 SCOPES = ['https://www.googleapis.com/auth/pubsub']
 
 # Authenticate with Google Pub/Sub API
